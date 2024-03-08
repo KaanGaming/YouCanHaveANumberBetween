@@ -1,6 +1,6 @@
 # YouCanHaveANumberBetween
 
-A simple program that takes 2-4 arguments and generates a text file output
+A simple program that takes 2-5 arguments and generates a text file output
 
 https://discord.com/channels/283467363729408000/586931790208434203/1215647840886587432
 
