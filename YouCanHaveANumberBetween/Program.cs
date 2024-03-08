@@ -1,4 +1,6 @@
-﻿namespace YouCanHaveANumberBetween
+﻿using System.Globalization;
+
+namespace YouCanHaveANumberBetween
 {
 	internal class Program
 	{
@@ -31,15 +33,37 @@
 				return;
 			}
 
+			bool usedouble = false;
+
+			if (args.Length >= 4)
+			{
+				if (!bool.TryParse(args[3], out usedouble))
+				{
+					using (FileStream fs = File.OpenWrite($"./{GenerateDateString(dateformat, DateTime.Now)}.txt"))
+					{
+						using (StreamWriter sw = new StreamWriter(fs))
+						{
+							sw.WriteLine($"ERROR");
+							sw.WriteLine($"Couldn't parse Double option");
+							sw.Close();
+						}
+					}
+					return;
+				}
+			}
+
 			if (args.Length >= 3)
 				dateformat = args[2];
 
 			int min, max;
+			double min_d, max_d;
 
 			bool mins = int.TryParse(args[0], out min);
 			bool maxs = int.TryParse(args[1], out max);
+			bool mins_d = double.TryParse(args[0], CultureInfo.InvariantCulture, out min_d);
+			bool maxs_d = double.TryParse(args[1], CultureInfo.InvariantCulture, out max_d);
 
-			if (!mins || !maxs)
+			if (((!mins || !maxs) && !usedouble) || ((!mins_d || !maxs_d) && usedouble))
 			{
 				using (FileStream fs = File.OpenWrite($"./{GenerateDateString(dateformat, DateTime.Now)}.txt"))
 				{
@@ -53,15 +77,37 @@
 				return;
 			}
 
-			Random rng = new Random();
+			int seed = 0;
+			bool seedinput = false;
+
+			if (args.Length >= 5)
+			{
+				seedinput = true;
+				if (!int.TryParse(args[4], out seed))
+				{
+					using (FileStream fs = File.OpenWrite($"./{GenerateDateString(dateformat, DateTime.Now)}.txt"))
+					{
+						using (StreamWriter sw = new StreamWriter(fs))
+						{
+							sw.WriteLine($"ERROR");
+							sw.WriteLine($"Couldn't parse seed");
+							sw.Close();
+						}
+					}
+					return;
+				}
+			}
+
+			Random rng = seedinput ? new Random(seed) : new Random();
 			int randvalue = rng.Next(min, max);
+			double randvalue_d = min_d + rng.NextDouble() * (max_d - min_d);
 
 			using (FileStream fs = File.OpenWrite($"./{GenerateDateString(dateformat, DateTime.Now)}.txt"))
 			{
 				using (StreamWriter sw = new StreamWriter(fs))
 				{
-					sw.WriteLine($"Generated a random value between {min} and {max}");
-					sw.WriteLine($"Returned {randvalue}");
+					sw.WriteLine($"Generated a random {(usedouble ? "decimal" : "integer")} value between {(usedouble ? min_d.ToString(CultureInfo.InvariantCulture) : min)} and {(usedouble ? max_d.ToString(CultureInfo.InvariantCulture) : max)}");
+					sw.WriteLine($"Returned {(usedouble ? randvalue_d.ToString(CultureInfo.InvariantCulture) : randvalue)}");
 					sw.Close();
 				}
 			}
